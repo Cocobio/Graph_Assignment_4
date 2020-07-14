@@ -10,7 +10,61 @@ template <typename K> MyGraph<K>::~MyGraph() {
 	
 }
 
+// Breast First Search algorithm
+template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& MyGraph<K>::bfs(VertexId s, std::unordered_map<VertexId,bool> color) {
+	std::queue<VertexId> q;
+
+	q.push(s);
+
+	while (!q.empty()) {
+		VertexId current = q.front();
+		q.pop();
+
+		if (!color[current]) {
+			color[current] = true;
+
+			for (auto &v : vertex.find(current)->second)
+				q.push(v);
+		}
+	}
+
+	return color;
+}
+
+// Depth First Search algorithm
+template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& MyGraph<K>::dfs(VertexId s, std::unordered_map<VertexId,bool> color) {
+	std::stack<VertexId> q;
+
+	q.push(s);
+
+	while (!q.empty()) {
+		VertexId current = q.top();
+		q.pop();
+
+		if(!color[current]) {
+			color[current] = true;
+
+			for (auto &v : vertex.find(current)->second)
+				q.push(v);
+		}
+	}
+
+	return color;
+}
+
+// Get the degree of a vertex v
+template <typename K> size_t MyGraph<K>::degree(VertexId v) {
+	auto v_data = vertex.find(v);
+
+	if (v_data == vertex.end()) return 0;
+	return v_data->second.size();
+}
+
+
+// Adding an edge, if one of the vertex doesn't exist it will create the vertex
+// The edge will be created only if the edge doesn't exist
 template <typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
+
 	auto u_vertex = vertex.find(u);
 	auto v_vertex = vertex.find(v);
 
@@ -23,10 +77,9 @@ template <typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
 		v_vertex = vertex.find(v);
 	}
 
-
-	// Create edge if not presented
+	// Create edge if not presented and its not a self loop
 	auto tmp = find(v_vertex->second.begin(), v_vertex->second.end(), u);
-	if (tmp == v_vertex->second.end()) {
+	if (tmp == v_vertex->second.end() && u!=v) {
 		v_vertex->second.push_back(u);
 		u_vertex->second.push_back(v);
 	}
@@ -71,6 +124,23 @@ template <typename K> void MyGraph<K>::remove_vertex(VertexId v) {
 	}
 }
 
+template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_begin() {
+	return vertex.cbegin();
+}
+
+template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_end() {
+	return vertex.cend();
+}
+
+template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::edge_begin(VertexId v) {
+	return vertex.find(v)->second.cbegin();
+}
+
+template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::edge_end(VertexId v) {
+	return vertex.find(v)->second.cend();	
+}
+
+
 //////////////////////////// TMP ////////////////////////////
 
 #include <iostream>
@@ -87,13 +157,13 @@ template <typename K> void MyGraph<K>::print() {
 	}
 }
 
-static void DummyFunc() {
-	MyGraph<string> string_graph;
-	string_graph.add_vertex(string("A"));
-	string_graph.add_vertex(string("B"));
-	string_graph.add_edge(string("A"), string("B"));
-	string_graph.remove_edge("A", "B");
-	string_graph.remove_vertex("A");
-	string_graph.remove_vertex("B");
-	string_graph.print();
-}
+// void DummyFunc() {
+// 	MyGraph<string> string_graph;
+// 	string_graph.add_vertex(string("A"));
+// 	string_graph.add_vertex(string("B"));
+// 	string_graph.add_edge(string("A"), string("B"));
+// 	string_graph.remove_edge("A", "B");
+// 	string_graph.remove_vertex("A");
+// 	string_graph.remove_vertex("B");
+// 	string_graph.print();
+// }

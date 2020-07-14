@@ -3,7 +3,8 @@ Author:
 	Ignacio Osorio W.
 	
 Definition for a ADT graph.
-	- It allows 
+	- Conex or disconex
+	- Simple (no parallel edges)
 */
 
 #ifndef MY_GRAPH
@@ -13,14 +14,19 @@ Definition for a ADT graph.
 #include <unordered_map>
 #include <utility>
 #include <algorithm>
+#include <queue>
+#include <stack>
+#include <string>
 
-template <typename K>
+template <typename K=std::string>
 class MyGraph {
 	public:
 		typedef K		VertexId;
 
 		typedef std::list<VertexId>								AdjacencyList;
 		typedef std::unordered_map<VertexId, AdjacencyList>		Container;
+		typedef typename Container::const_iterator				VertexIterator;
+		typedef typename AdjacencyList::const_iterator			EdgeIterator;
 
 	private:
 		Container vertex;
@@ -29,8 +35,10 @@ class MyGraph {
 		MyGraph();
 		~MyGraph();
 
-		// bfs;
-		// dfs;
+		std::unordered_map<VertexId,bool>& bfs(VertexId s, std::unordered_map<VertexId,bool> color=std::unordered_map<VertexId,bool>());
+		std::unordered_map<VertexId,bool>& dfs(VertexId s, std::unordered_map<VertexId,bool> color=std::unordered_map<VertexId,bool>());
+
+		size_t degree(VertexId v);
 
 		// get_radius();
 		// get_center();
@@ -48,6 +56,15 @@ class MyGraph {
 		void remove_vertex(VertexId v);
 
 		void print();
+
+		VertexIterator vertex_begin();
+		VertexIterator vertex_end();
+
+		EdgeIterator edge_begin(VertexId v);
+		EdgeIterator edge_end(VertexId v);
 };
+
+// For linking error purposes
+#include "MyGraph.cpp"
 
 #endif
