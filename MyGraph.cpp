@@ -11,7 +11,7 @@ template <typename K> MyGraph<K>::~MyGraph() {
 }
 
 // Breast First Search algorithm
-template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& MyGraph<K>::bfs(VertexId s, std::unordered_map<VertexId,bool> color) {
+template <typename K> void MyGraph<K>::bfs(VertexId s, std::unordered_map<VertexId,bool>& color) {
 	std::queue<VertexId> q;
 
 	q.push(s);
@@ -27,12 +27,10 @@ template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& My
 				q.push(v);
 		}
 	}
-
-	return color;
 }
 
 // Depth First Search algorithm
-template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& MyGraph<K>::dfs(VertexId s, std::unordered_map<VertexId,bool> color) {
+template <typename K> void MyGraph<K>::dfs(VertexId s, std::unordered_map<VertexId,bool>& color) {
 	std::stack<VertexId> q;
 
 	q.push(s);
@@ -48,8 +46,6 @@ template <typename K> std::unordered_map<typename MyGraph<K>::VertexId,bool>& My
 				q.push(v);
 		}
 	}
-
-	return color;
 }
 
 // Get the degree of a vertex v
@@ -125,11 +121,11 @@ template <typename K> void MyGraph<K>::remove_vertex(VertexId v) {
 }
 
 template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_begin() {
-	return vertex.cbegin();
+	return vertex.begin();
 }
 
 template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_end() {
-	return vertex.cend();
+	return vertex.end();
 }
 
 template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::edge_begin(VertexId v) {
@@ -156,14 +152,3 @@ template <typename K> void MyGraph<K>::print() {
 		cout << endl;
 	}
 }
-
-// void DummyFunc() {
-// 	MyGraph<string> string_graph;
-// 	string_graph.add_vertex(string("A"));
-// 	string_graph.add_vertex(string("B"));
-// 	string_graph.add_edge(string("A"), string("B"));
-// 	string_graph.remove_edge("A", "B");
-// 	string_graph.remove_vertex("A");
-// 	string_graph.remove_vertex("B");
-// 	string_graph.print();
-// }

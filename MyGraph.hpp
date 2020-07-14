@@ -25,7 +25,7 @@ class MyGraph {
 
 		typedef std::list<VertexId>								AdjacencyList;
 		typedef std::unordered_map<VertexId, AdjacencyList>		Container;
-		typedef typename Container::const_iterator				VertexIterator;
+		typedef typename Container::iterator				VertexIterator;
 		typedef typename AdjacencyList::const_iterator			EdgeIterator;
 
 	private:
@@ -35,8 +35,8 @@ class MyGraph {
 		MyGraph();
 		~MyGraph();
 
-		std::unordered_map<VertexId,bool>& bfs(VertexId s, std::unordered_map<VertexId,bool> color=std::unordered_map<VertexId,bool>());
-		std::unordered_map<VertexId,bool>& dfs(VertexId s, std::unordered_map<VertexId,bool> color=std::unordered_map<VertexId,bool>());
+		void bfs(VertexId s, std::unordered_map<VertexId,bool>& color=std::unordered_map<VertexId,bool>());
+		void dfs(VertexId s, std::unordered_map<VertexId,bool>& color=std::unordered_map<VertexId,bool>());
 
 		size_t degree(VertexId v);
 
@@ -45,9 +45,7 @@ class MyGraph {
 		// get_diameter();
 
 		// compact;
-		// follow;
 		// clique;
-		// find;
 
 		void add_edge(VertexId u, VertexId v);
 		void remove_edge(VertexId u, VertexId v);

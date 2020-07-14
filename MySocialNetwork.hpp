@@ -16,14 +16,14 @@ Author:
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
 // Interface class that can be extended into a real social network, with information on a DB, etc...
-template<class GraphContainer=MyGraph<string>>
 class MySocialNetwork {
 	public:
-		typedef GraphContainer			Graph;
+		typedef MyGraph<string>			Graph;
 
 	private:
 		Graph relations_graph;
@@ -33,13 +33,14 @@ class MySocialNetwork {
 		void delete_profile(std::string p);
 
 		void friending(std::string p1, std::string p2);
-		void unfriending(std::string p1, std::stringp2);
+		void unfriending(std::string p1, std::string p2);
 
 		bool find(std::string p, int m=0);
 
+		void print();
 
 		//
-		vector<pair<string,size_t>>& follow(int n);
+		vector<pair<size_t,string>> follow(int n);
 };
 
 
