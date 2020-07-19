@@ -2,7 +2,8 @@
 Author:
 	Ignacio Osorio W.
 
-
+Social network class to bypass and print the result needed for the implementation asked on assignment 4.
+Important implementations are on MyGraph class. 
 
 */
 
@@ -17,6 +18,7 @@ Author:
 #include <utility>
 #include <algorithm>
 #include <queue>
+#include <iostream>
 
 using namespace std;
 
@@ -40,7 +42,9 @@ class MySocialNetwork {
 		void print();
 
 		//
-		vector<pair<size_t,string>> follow(int n);
+		vector<pair<int,string>> follow(int n);
+
+		vector<typename Graph::AdjacencySet> listing_comunities();
 };
 
 

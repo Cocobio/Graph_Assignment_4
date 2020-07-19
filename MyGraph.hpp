@@ -3,8 +3,23 @@ Author:
 	Ignacio Osorio W.
 	
 Definition for a ADT graph.
-	- Conex or disconex
-	- Simple (no parallel edges)
+	- Connected or disconnected
+	- Simple (no parallel edges or self loops)
+	- Undirected graph
+	- Not weighted
+
+Algorithms implemented:
+	- BFS
+	- DFS
+
+	Clique finding algorithm:
+	***
+	Bron–Kerbosch algorithm, what container should i use?? For fast union and intersect
+	
+	- Bron_Kerbosch (normal implementation, without optimizations)
+		reference: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#Without_pivoting
+	- WORKING Bron_Kerbosh_pivoting (first optimization)
+		reference: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#With_pivoting
 */
 
 #ifndef MY_GRAPH
@@ -12,21 +27,25 @@ Definition for a ADT graph.
 
 #include <list>
 #include <unordered_map>
+#include <set>
 #include <utility>
 #include <algorithm>
 #include <queue>
 #include <stack>
 #include <string>
+#include <vector>
 
 template <typename K=std::string>
 class MyGraph {
 	public:
 		typedef K		VertexId;
 
-		typedef std::list<VertexId>								AdjacencyList;
-		typedef std::unordered_map<VertexId, AdjacencyList>		Container;
-		typedef typename Container::iterator				VertexIterator;
-		typedef typename AdjacencyList::const_iterator			EdgeIterator;
+		typedef std::set<VertexId>								AdjacencySet;
+		typedef std::unordered_map<VertexId, AdjacencySet>		Container;
+		typedef std::unordered_map<VertexId,bool>				VertexFlagContainer;
+
+		typedef typename Container::const_iterator				VertexIterator;
+		typedef typename AdjacencySet::const_iterator			EdgeIterator;
 
 	private:
 		Container vertex;
@@ -35,9 +54,6 @@ class MyGraph {
 		MyGraph();
 		~MyGraph();
 
-		void bfs(VertexId s, std::unordered_map<VertexId,bool>& color=std::unordered_map<VertexId,bool>());
-		void dfs(VertexId s, std::unordered_map<VertexId,bool>& color=std::unordered_map<VertexId,bool>());
-
 		size_t degree(VertexId v);
 
 		// get_radius();
@@ -45,7 +61,9 @@ class MyGraph {
 		// get_diameter();
 
 		// compact;
-		// clique;
+
+		// vertex size
+		// edges size
 
 		void add_edge(VertexId u, VertexId v);
 		void remove_edge(VertexId u, VertexId v);
@@ -53,13 +71,25 @@ class MyGraph {
 		void add_vertex(VertexId v);
 		void remove_vertex(VertexId v);
 
-		void print();
-
 		VertexIterator vertex_begin();
 		VertexIterator vertex_end();
 
 		EdgeIterator edge_begin(VertexId v);
 		EdgeIterator edge_end(VertexId v);
+
+		std::vector<AdjacencySet> listing_cliques();
+
+		// Searching algorithms
+		void bfs(VertexId s, VertexFlagContainer& color=VertexFlagContainer());
+		void dfs(VertexId s, VertexFlagContainer& color=VertexFlagContainer());
+
+		// Maximal clique finding algorithms 
+		template <class Reporter>
+		void bron_kerbosch(AdjacencySet R, AdjacencySet P, AdjacencySet X, Reporter report);
+
+		// WORKING HERE!
+		// template <class Reporter>
+		// void bron_kerbosch_pivoting(AdjacencySet R, AdjacencySet P, AdjacencySet X, Reporter report);
 };
 
 // For linking error purposes

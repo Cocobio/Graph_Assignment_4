@@ -1,7 +1,5 @@
 /*
 todo:
-	- Test find with disconex graphs
-	- program clique finder
 	- program compact
 */
 
@@ -9,83 +7,70 @@ todo:
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include "ManualTest.cpp"
 
 using namespace std;
 
-void exec_opt(int opt, MySocialNetwork &sn) {
-	string node_u, node_v, node;
-	vector<pair<size_t,string>> important_users;
-	int n;
+// Parse the instruction into Find, Clique, Follow and Compact
+void parse_instruction(string inst_line, MySocialNetwork& social_net) {
+	stringstream s(inst_line);
+	string tmp;
 
-	switch (opt) {
-		case 1:
-		cout << "Insert vertex: ";
-		cin >> node;
-		sn.new_profile(node);
-		break;
-		
-		case 2:
-		cout << "Insert edge: ";
-		cin >> node_u >> node_v;
-		sn.friending(node_u, node_v);
-		break;
-		
-		case 3:
-		cout << "Vertex to be deleted: ";
-		cin >> node;
-		sn.delete_profile(node);
-		break;
+	s >> tmp;
 
-		case 4:
-		cout << "Edge to be deleted: ";
-		cin >> node_u >> node_v;
-		sn.unfriending(node_u, node_v);
-		break;
+	if (tmp=="Add") {
+		string user1, user2;
+		s >> user1 >> user2;
+		social_net.friending(user1,user2);
+	}
+	else if (tmp=="Find") {
+		string user, output;
+		s >> user;
 
-		case 5:
-		cout << "printing graph:" << endl;
-		sn.print();
-		break;
-
-		case 6:
-		cout << "Profile to be found: ";
-		cin >> node;
-		cout << node << "found: " << sn.find(node) << endl;
-		break;
-
-		case 7:
-		cout << "Insert number of top Profiles: ";
-		cin >> n;
-		important_users = sn.follow(n);
+		output = social_net.find(user) ? "Yes" : "No";
+		cout << output << endl;
+	}
+	else if (tmp=="Clique") {
+		vector<MySocialNetwork::Graph::AdjacencySet> cliques = social_net.listing_comunities();
+		for (auto it = cliques.rbegin(); it!=cliques.rend(); it++) {
+			if (it->size()>2) {
+				for (auto &user : *it)
+					cout << user << " ";
+				cout << endl;
+			}
+		}
+	}
+	else if (tmp=="Follow") {
+		int n;
+		s >> n;
+		vector<pair<int,string>> important_users = social_net.follow(n);
 		for (auto it = important_users.rbegin(); it!=important_users.rend(); it++)
-			cout << it->second << " with " << it->first << " connections" << endl;
-		break;
-
-		default:
-		cout << "Exiting." << endl;
+			cout << it->second << endl;
+	}
+	else if (tmp=="Compact") {
+		cout << tmp << " not implemented" << endl;
+	}
+	else {
+		cout << "Instruction not recongniced" << endl;
 	}
 }
 
 int main() {
-	vector<string> options;
-	options.push_back(string(".-Insert Profile: "));
-	options.push_back(string(".-Insert Friendship: "));
-	options.push_back(string(".-Delete Profile: "));
-	options.push_back(string(".-Delete Friendship: "));
-	options.push_back(string(".-Print graph: "));
-	options.push_back(string(".-Find Profile: "));
-	options.push_back(string(".-Top n Profiles: "));
-	options.push_back(string(".-Exit"));
-	int opt=0;
-	
 	MySocialNetwork social_net;
-	for(int i=0; i<options.size(); i++)
-		cout << i+1 << options[i] << endl;
 
-	while (opt!=options.size()) {
-		cin >> opt;
-		exec_opt(opt, social_net);
+	// // Input from cin or piping from file
+	string inst;
+
+	while (getline(cin, inst)) {
+		if (inst.size() == 0)
+			continue;
+
+		parse_instruction(inst, social_net);
 	}
 	
+	// // Manual testing
+	// manual_testing(social_net);
+
 	return 0;
 }

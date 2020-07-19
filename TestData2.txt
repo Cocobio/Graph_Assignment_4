@@ -1,0 +1,11 @@
+Add A B
+Add B C
+Add C A
+Add A D
+Add D E
+Add E A
+Clique
+
+Follow 2
+
+Compact

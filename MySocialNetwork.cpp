@@ -1,34 +1,37 @@
 #include "MySocialNetwork.hpp"
 
-//
+// Creates a new user
 void MySocialNetwork::new_profile(std::string p) {
 	relations_graph.add_vertex(p);
 }
 
-//
+// Delete a user, it will remove alse all the friendships
 void MySocialNetwork::delete_profile(std::string p) {
 	relations_graph.remove_vertex(p);
 }
 
-//
+// Create a new friendship, and maybe a user (if user was not created before)
 void MySocialNetwork::friending(std::string p1, std::string p2) {
 	relations_graph.add_edge(p1, p2);
 }
 
-//
+// Remove a friendship from the users p1 and p2.
 void MySocialNetwork::unfriending(std::string p1, std::string p2) {
 	relations_graph.remove_edge(p1, p2);
 }
 
-//
+// Using DFS or BFS it searches for a user in the graphs. Starting the search on the first vertex on the container.
 bool MySocialNetwork::find(std::string p, int m) {
-	unordered_map<std::string, bool> color;
+	Graph::VertexFlagContainer color;
 
-	void (MyGraph<string>::* method)(string, unordered_map<string,bool>&);
+	void (Graph::* method)(string, Graph::VertexFlagContainer&);
 
+	// Method that will use for the search
 	if (m) method = relations_graph.dfs;
 	else method = relations_graph.bfs;
 
+	// The BFS and DFS are implemented for connected components
+	// This will ensure that all the different connected components will get processed
 	for (auto v = relations_graph.vertex_begin(); v!=relations_graph.vertex_end(); v++) {
 		if (!color[v->first]) {
 			(relations_graph.*method)(v->first, color);
@@ -40,21 +43,18 @@ bool MySocialNetwork::find(std::string p, int m) {
 	return false;
 }
 
-//
-vector<pair<size_t, string>> MySocialNetwork::follow(int n) {
-	vector<pair<size_t, string>> vertex_container, output;
+// By using a heap, it returns the n users with the most friendships
+vector<pair<int, string>> MySocialNetwork::follow(int n) {
+	vector<pair<int, string>> vertex_container, output;
 
+	// Build the temporal container that will fasten the heap construction
 	for (auto v = relations_graph.vertex_begin(); v!=relations_graph.vertex_end(); v++)
 		vertex_container.emplace_back(v->second.size(), v->first);
 
-	struct MyComp {
-		bool operator()( pair<size_t, string> const a, pair<size_t, string> const b )
-		{ return a.first>b.first; }
-	};
+	// Linear complexity
+	priority_queue<pair<int, string>> rank(vertex_container.begin(), vertex_container.end());
 
-	// Couldn't use greater<> because the comparador was working weird with the pairs (some times gave me the wrong answer)
-	priority_queue<pair<size_t, string>, vector<pair<size_t, string>>, MyComp> rank(vertex_container.begin(), vertex_container.end());
-
+	// output the n users with the most friendships (or followers)
 	for(int i=0; i<n && !rank.empty(); i++) {
 		output.push_back(rank.top());
 		rank.pop();
@@ -63,8 +63,19 @@ vector<pair<size_t, string>> MySocialNetwork::follow(int n) {
 	return output;
 }
 
-//
-void MySocialNetwork::print() {
-	relations_graph.print();	
+// Gets a list of maximal cliques from the graph. Sorted in descending order.
+vector<typename MySocialNetwork::Graph::AdjacencySet> MySocialNetwork::listing_comunities() {
+	return relations_graph.listing_cliques();
 }
 
+// Printing function, it will show the vertexs and the connections for each one. On a list.
+void MySocialNetwork::print() {
+	for (auto it=relations_graph.vertex_begin(); it!=relations_graph.vertex_end(); it++) {
+		std::cout << it->first << ":\t";
+
+		for (auto &it2 : it->second)
+			std::cout << it2 << " ";
+
+		std::cout << std::endl;
+	}
+}
