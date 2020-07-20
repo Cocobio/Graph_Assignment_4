@@ -1,17 +1,17 @@
 #include "MyGraph.hpp"
 
 // Constructor
-template <typename K> MyGraph<K>::MyGraph() {
+template<typename K> MyGraph<K>::MyGraph() {
 	
 }
 
 // Destructor
-template <typename K> MyGraph<K>::~MyGraph() {
+template<typename K> MyGraph<K>::~MyGraph() {
 	
 }
 
 // Breast First Search algorithm
-template <typename K> void MyGraph<K>::bfs(VertexId s, VertexFlagContainer& color) {
+template<typename K> void MyGraph<K>::bfs(VertexId s, VertexFlagContainer& color) {
 	std::queue<VertexId> q;
 
 	q.push(s);
@@ -30,7 +30,7 @@ template <typename K> void MyGraph<K>::bfs(VertexId s, VertexFlagContainer& colo
 }
 
 // Depth First Search algorithm
-template <typename K> void MyGraph<K>::dfs(VertexId s, VertexFlagContainer& color) {
+template<typename K> void MyGraph<K>::dfs(VertexId s, VertexFlagContainer& color) {
 	std::stack<VertexId> q;
 
 	q.push(s);
@@ -49,7 +49,7 @@ template <typename K> void MyGraph<K>::dfs(VertexId s, VertexFlagContainer& colo
 }
 
 // Get the degree of a vertex v
-template <typename K> size_t MyGraph<K>::degree(VertexId v) {
+template<typename K> size_t MyGraph<K>::degree(VertexId v) {
 	auto v_data = vertex.find(v);
 
 	if (v_data == vertex.end()) return 0;
@@ -59,7 +59,7 @@ template <typename K> size_t MyGraph<K>::degree(VertexId v) {
 
 // Adding an edge, if one of the vertex doesn't exist it will create the vertex
 // The edge will be created only if the edge doesn't exist
-template <typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
+template<typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
 
 	auto u_vertex = vertex.find(u);
 	auto v_vertex = vertex.find(v);
@@ -83,7 +83,7 @@ template <typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
 }
 
 // Remove the edge using 2 vertex. If vertex u == v, it just returns
-template <typename K> void MyGraph<K>::remove_edge(VertexId u, VertexId v) {
+template<typename K> void MyGraph<K>::remove_edge(VertexId u, VertexId v) {
 	auto u_vertex = vertex.find(u);
 	auto v_vertex = vertex.find(v);
 
@@ -102,13 +102,13 @@ template <typename K> void MyGraph<K>::remove_edge(VertexId u, VertexId v) {
 }
 
 // Creates a new vertex only if its not already on the graph
-template <typename K> void MyGraph<K>::add_vertex(VertexId v) {
+template<typename K> void MyGraph<K>::add_vertex(VertexId v) {
 	if (vertex.find(v) == vertex.end())
 		vertex.emplace(v, AdjacencySet());
 }
 
 // Removes vertex from the graph and all the edges containing it
-template <typename K> void MyGraph<K>::remove_vertex(VertexId v) {
+template<typename K> void MyGraph<K>::remove_vertex(VertexId v) {
 	auto v_vertex = vertex.find(v);
 
 	if (v_vertex != vertex.end()) {
@@ -127,7 +127,7 @@ template <typename K> void MyGraph<K>::remove_vertex(VertexId v) {
 // Wrapper function for the maximal clique finding algorithms (bron kerbosch)
 // It returns a vector with sets containing the vertex of maximals clique.
 // The vertex is ordered on descending size of clique (or kth degree)
-template <typename K> std::vector<typename MyGraph<K>::AdjacencySet> MyGraph<K>::listing_cliques() {
+template<typename K> std::vector<typename MyGraph<K>::AdjacencySet> MyGraph<K>::listing_cliques() {
 	std::vector<AdjacencySet> cliques;
 
 	// Parameters for bron_kerbosch. Initialize the P set
@@ -143,7 +143,7 @@ template <typename K> std::vector<typename MyGraph<K>::AdjacencySet> MyGraph<K>:
 }
 
 // Finds all the maximal cliques and uses the report parameter to report the found clique.
-template <typename K> template<class Reporter> void MyGraph<K>::bron_kerbosch(AdjacencySet R, AdjacencySet P, AdjacencySet X, Reporter report) {
+template<typename K> template<class Reporter> void MyGraph<K>::bron_kerbosch(AdjacencySet R, AdjacencySet P, AdjacencySet X, Reporter report) {
 	if (P.empty() && X.empty()) report(R);
 
 	AdjacencySet tmpP(P);
@@ -172,13 +172,56 @@ template <typename K> template<class Reporter> void MyGraph<K>::bron_kerbosch(Ad
 	}
 }
 
+// Compact funciton, It will use a lookup table to asociate the vertex with it self or a maximal clique component
+template<typename K> template<class NamingFunc> MyGraph<K> MyGraph<K>::compact(NamingFunc naming_function) {
+	MyGraph<K> compact_graph;
 
-///////////////////////////// Const Iterators accesors /////////////////////////////
-template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_begin() {
+	std::vector<AdjacencySet> cliques = listing_cliques();
+
+	std::unordered_map<VertexId, VertexId> components;
+
+	// Counter for identifying different maximal cliques
+	size_t component_i = 0;
+
+	// If there are maximal cliques that share a vertex, the bigger one will gain precedence over the smaller one
+	for (auto &clique : cliques) {
+		bool clique_not_assigned = true;
+
+		// Check that all the vertex on this particular clique hasn't been collapsed (compacted) already
+		for (auto &v : clique)
+			if (components.find(v) != components.end())
+				clique_not_assigned = false;
+
+		// If this clique has all its vertex available for compact, then mark then as part of the new collapse component
+		if (clique_not_assigned) {
+			VertexId component_id = naming_function(component_i);
+
+			for (auto &v : clique)
+				components[v] = component_id;
+			component_i++;
+		}
+	}
+
+	// Mark the rest of the vertex as individuals, not part of a compacted clique
+	for (auto &v : vertex)
+		if (components.find(v.first) == components.end())
+			components[v.first] = v.first;
+
+	// Add connections to the compact graph
+	for (auto &v : vertex)
+		for (auto &Nv_i : v.second)
+			compact_graph.add_edge(components[v.first], components[Nv_i]);
+	
+	return compact_graph;
+}
+
+
+///////////////////////////// Const Iterators accesors and limiters /////////////////////////////
+template<typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_begin() {
 	return vertex.begin();
 }
 
-template <typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_end() {
+template<typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_end() {
 	return vertex.end();
 }
 

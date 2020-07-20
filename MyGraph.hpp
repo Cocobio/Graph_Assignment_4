@@ -20,6 +20,8 @@ Algorithms implemented:
 		reference: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#Without_pivoting
 	- WORKING Bron_Kerbosh_pivoting (first optimization)
 		reference: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#With_pivoting
+
+	- Compact, using the Bron Kerbosch as algorithm to find the maximal cliques
 */
 
 #ifndef MY_GRAPH
@@ -60,7 +62,6 @@ class MyGraph {
 		// get_center();
 		// get_diameter();
 
-		// compact;
 
 		// vertex size
 		// edges size
@@ -90,6 +91,10 @@ class MyGraph {
 		// WORKING HERE!
 		// template <class Reporter>
 		// void bron_kerbosch_pivoting(AdjacencySet R, AdjacencySet P, AdjacencySet X, Reporter report);
+		
+		// Compact algorithm using maximal clique listing
+		template <class NamingFunc>
+		MyGraph<K> compact(NamingFunc naming_function);
 };
 
 // For linking error purposes

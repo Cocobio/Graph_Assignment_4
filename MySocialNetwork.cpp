@@ -79,3 +79,38 @@ void MySocialNetwork::print() {
 		std::cout << std::endl;
 	}
 }
+
+// Creates a compact version of the relations_graph and prints the edges using a BFS
+void MySocialNetwork:: print_compact_bfs() {
+	// naming function for the collapsed vertex
+	auto naming_function = [](size_t i) { return std::string("Componente "+std::to_string(i+1)); };
+
+	// Create the compacted version of the relations graph
+	Graph compacted = relations_graph.compact(naming_function);
+	
+	// BFS
+	std::queue<typename Graph::VertexId> q;
+	typename Graph::VertexFlagContainer color;
+
+	// This for is to support disconnected graphs. So it checks all the vertex
+	for (auto it = compacted.vertex_begin(); it != compacted.vertex_end(); it++) {
+		if (!color[it->first]) {
+			q.push(it->first);
+
+			// BFS algorithm
+			while (!q.empty()) {
+				auto v = q.front();
+				q.pop();
+				color[v] = true;
+
+				// Check the neighborhood of v
+				for (auto u_it = compacted.edge_begin(v); u_it != compacted.edge_end(v); u_it++)
+					// If there is a vertex that hasn't been visited yet, print out the edge and push the vertex on the queue
+					if (!color[*u_it]) {
+						std::cout << "(" << v << ", " << *u_it << ")" << endl;
+						q.push(*u_it);
+					}
+			}
+		}
+	}
+}

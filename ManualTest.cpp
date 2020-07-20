@@ -78,6 +78,11 @@ void exec_opt(int opt, MySocialNetwork &social_net) {
 		}
 		break;
 
+		case 9:
+		cout << "Compact graph printed as edges on a BFS" << endl;
+		social_net.print_compact_bfs();
+		break;
+
 		default:
 		cout << "Exiting." << endl;
 	}
@@ -94,6 +99,7 @@ void manual_testing(MySocialNetwork& social_net) {
 	options.push_back(string(".-Find Profile: "));
 	options.push_back(string(".-Top n Profiles: "));
 	options.push_back(string(".-Clique Listing: "));
+	options.push_back(string(".-Compact and print as BFS: "));
 	options.push_back(string(".-Exit"));
 	int opt=0;
 	

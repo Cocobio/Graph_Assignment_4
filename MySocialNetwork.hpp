@@ -40,11 +40,14 @@ class MySocialNetwork {
 		bool find(std::string p, int m=0);
 
 		void print();
+		void print_compact_bfs();
 
 		//
 		vector<pair<int,string>> follow(int n);
 
 		vector<typename Graph::AdjacencySet> listing_comunities();
+
+		// Testing section ************
 };
 
 

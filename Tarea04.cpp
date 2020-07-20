@@ -1,6 +1,5 @@
 /*
 todo:
-	- program compact
 */
 
 #include "MySocialNetwork.hpp"
@@ -49,17 +48,17 @@ void parse_instruction(string inst_line, MySocialNetwork& social_net) {
 			cout << it->second << endl;
 	}
 	else if (tmp=="Compact") {
-		cout << tmp << " not implemented" << endl;
+		social_net.print_compact_bfs();
 	}
 	else {
-		cout << "Instruction not recongniced" << endl;
+		cout << "Instruction not recongniced: " << tmp << endl;
 	}
 }
 
 int main() {
 	MySocialNetwork social_net;
 
-	// // Input from cin or piping from file
+	// Input from cin or piping from file
 	string inst;
 
 	while (getline(cin, inst)) {
