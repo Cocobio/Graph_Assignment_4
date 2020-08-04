@@ -104,7 +104,7 @@ void MySocialNetwork:: print_compact_bfs() {
 				color[v] = true;
 
 				// Check the neighborhood of v
-				for (auto u_it = compacted.edge_begin(v); u_it != compacted.edge_end(v); u_it++)
+				for (auto u_it = compacted.Nv_begin(v); u_it != compacted.Nv_end(v); u_it++)
 					// If there is a vertex that hasn't been visited yet, print out the edge and push the vertex on the queue
 					if (!color[*u_it]) {
 						std::cout << "(" << v << ", " << *u_it << ")" << endl;

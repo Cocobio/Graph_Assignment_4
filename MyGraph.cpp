@@ -10,6 +10,27 @@ template<typename K> MyGraph<K>::~MyGraph() {
 	
 }
 
+// Order of the graph (defined as the cardinal of vertex)
+template<typename K> size_t MyGraph<K>::order() {
+	return vertex.size();
+}
+
+// Size of the graph (defined as the cardinal of the edges)
+// can also be computed as 1/2*sum(for_each v in vertex, degree(v))
+template<typename K> size_t MyGraph<K>::size() {
+	return edge_count;
+}
+
+// Chech if the graph is connected or disconnected
+template<typename K> void MyGraph<K>::is_connected() {
+	VertexId v = vertex.begin()->first;
+	VertexFlagContainer color;
+
+	bfs(v, color);
+
+	return color.size()==vertex.size();
+}
+
 // Breast First Search algorithm
 template<typename K> void MyGraph<K>::bfs(VertexId s, VertexFlagContainer& color) {
 	std::queue<VertexId> q;
@@ -79,6 +100,8 @@ template<typename K> void MyGraph<K>::add_edge(VertexId u, VertexId v) {
 	if (tmp == v_vertex->second.end() && u!=v) {
 		v_vertex->second.insert(u);
 		u_vertex->second.insert(v);
+
+		edge_count++;
 	}
 }
 
@@ -99,6 +122,8 @@ template<typename K> void MyGraph<K>::remove_edge(VertexId u, VertexId v) {
 	// Delete the edge
 	v_vertex->second.erase(u_in_v);
 	u_vertex->second.erase(v_in_u);
+
+	edge_count--;
 }
 
 // Creates a new vertex only if its not already on the graph
@@ -112,6 +137,8 @@ template<typename K> void MyGraph<K>::remove_vertex(VertexId v) {
 	auto v_vertex = vertex.find(v);
 
 	if (v_vertex != vertex.end()) {
+		edge_count-v_vertex->second.size();
+		
 		// Remove edges that are contained
 		for (auto &Nv_i : v_vertex->second) {
 			AdjacencySet *list_ref = &vertex.find(Nv_i)->second;
@@ -176,21 +203,36 @@ template<typename K> template<class Reporter> void MyGraph<K>::bron_kerbosch(Adj
 template<typename K> template<class NamingFunc> MyGraph<K> MyGraph<K>::compact(NamingFunc naming_function) {
 	MyGraph<K> compact_graph;
 
+
+	struct CustomCompare {
+		bool operator()(const AdjacencySet& lhs, const AdjacencySet& rhs)
+		{
+			return lhs.size() < rhs.size();
+		}
+	};
+
 	std::vector<AdjacencySet> cliques = listing_cliques();
+	std::priority_queue<AdjacencySet, std::vector<AdjacencySet>, CustomCompare> maximals_cliques(cliques.begin(), cliques.end());
 
 	std::unordered_map<VertexId, VertexId> components;
 
 	// Counter for identifying different maximal cliques
 	size_t component_i = 0;
 
-	// If there are maximal cliques that share a vertex, the bigger one will gain precedence over the smaller one
-	for (auto &clique : cliques) {
+	// Compact cliques from the biggest to the smalles, removing vertex shared by cliques
+	while (maximals_cliques.size()) {
+		AdjacencySet clique = maximals_cliques.top();
 		bool clique_not_assigned = true;
+		maximals_cliques.pop();
+
+		std::list<VertexId> erase_ids;
 
 		// Check that all the vertex on this particular clique hasn't been collapsed (compacted) already
 		for (auto &v : clique)
-			if (components.find(v) != components.end())
+			if (components.find(v) != components.end()) {
 				clique_not_assigned = false;
+				erase_ids.push_back(v);
+			}
 
 		// If this clique has all its vertex available for compact, then mark then as part of the new collapse component
 		if (clique_not_assigned) {
@@ -199,6 +241,14 @@ template<typename K> template<class NamingFunc> MyGraph<K> MyGraph<K>::compact(N
 			for (auto &v : clique)
 				components[v] = component_id;
 			component_i++;
+		}
+		else {
+			for (auto &v : erase_ids)
+				clique.erase(v);
+			erase_ids.clear();
+
+			if (clique.size() > 2)
+				maximals_cliques.push(clique);
 		}
 	}
 
@@ -225,11 +275,11 @@ template<typename K> typename MyGraph<K>::VertexIterator MyGraph<K>::vertex_end(
 	return vertex.end();
 }
 
-template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::edge_begin(VertexId v) {
+template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::Nv_begin(VertexId v) {
 	return vertex.find(v)->second.cbegin();
 }
 
-template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::edge_end(VertexId v) {
+template<typename K> typename MyGraph<K>::EdgeIterator MyGraph<K>::Nv_end(VertexId v) {
 	return vertex.find(v)->second.cend();	
 }
 

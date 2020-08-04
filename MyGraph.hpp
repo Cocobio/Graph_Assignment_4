@@ -15,7 +15,8 @@ Algorithms implemented:
 	Clique finding algorithm:
 	***
 	Bron–Kerbosch algorithm, what container should i use?? For fast union and intersect
-	
+		*** listing maximal cliques can be set as a SAT problem, reference: https://sci-hub.tw/https://www.researchgate.net/publication/301777400_SAT-based_algorithm_for_finding_all_maximal_cliques
+
 	- Bron_Kerbosch (normal implementation, without optimizations)
 		reference: https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#Without_pivoting
 	- WORKING Bron_Kerbosh_pivoting (first optimization)
@@ -51,6 +52,7 @@ class MyGraph {
 
 	private:
 		Container vertex;
+		size_t edge_count;
 
 	public:
 		MyGraph();
@@ -62,9 +64,11 @@ class MyGraph {
 		// get_center();
 		// get_diameter();
 
-
 		// vertex size
+		size_t order();
+
 		// edges size
+		size_t size();
 
 		void add_edge(VertexId u, VertexId v);
 		void remove_edge(VertexId u, VertexId v);
@@ -75,14 +79,16 @@ class MyGraph {
 		VertexIterator vertex_begin();
 		VertexIterator vertex_end();
 
-		EdgeIterator edge_begin(VertexId v);
-		EdgeIterator edge_end(VertexId v);
+		EdgeIterator Nv_begin(VertexId v);
+		EdgeIterator Nv_end(VertexId v);
 
 		std::vector<AdjacencySet> listing_cliques();
 
 		// Searching algorithms
 		void bfs(VertexId s, VertexFlagContainer& color=VertexFlagContainer());
 		void dfs(VertexId s, VertexFlagContainer& color=VertexFlagContainer());
+
+		void is_connected();
 
 		// Maximal clique finding algorithms 
 		template <class Reporter>
