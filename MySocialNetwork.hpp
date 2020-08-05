@@ -26,6 +26,7 @@ using namespace std;
 class MySocialNetwork {
 	public:
 		typedef MyGraph<string>			Graph;
+		// typedef vector<UserInfo>		DataBase;						
 
 	private:
 		Graph relations_graph;
