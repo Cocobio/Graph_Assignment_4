@@ -1,0 +1,4 @@
+Add A B
+Add B C
+Add C K
+Compact

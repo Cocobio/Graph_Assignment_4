@@ -224,6 +224,8 @@ template<typename K> template<class NamingFunc> MyGraph<K> MyGraph<K>::compact(N
 		AdjacencySet clique = maximals_cliques.top();
 		bool clique_not_assigned = true;
 		maximals_cliques.pop();
+		
+		if (clique.size() <= 2) break;
 
 		std::list<VertexId> erase_ids;
 
